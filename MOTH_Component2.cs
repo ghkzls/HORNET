@@ -8,15 +8,15 @@ using Rhino.Render;
 using System.Net;
 using Newtonsoft.Json.Linq;
 
-namespace MOTH_2
+namespace HORNET
 {
-    public class MOTH_Component2 : GH_Component
+    public class HORNET_Component2 : GH_Component
     {
         private string _cachedAddress = "";
         private double _cachedLat = 0;
         private double _cachedLng = 0;
 
-        public MOTH_Component2()
+        public HORNET_Component2()
           : base("Solar Rotation", "SolarRot",
             "Rotates object based on sun position using a site address",
             "MyTools", "Solar")
@@ -243,3 +243,4 @@ namespace MOTH_2
     }
 
 }
+
