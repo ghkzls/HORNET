@@ -12,7 +12,6 @@ namespace MOTH_2
 {
     public class MOTH_Component2 : GH_Component
     {
-        // Cache the last geocoded result to avoid repeated API calls
         private string _cachedAddress = "";
         private double _cachedLat = 0;
         private double _cachedLng = 0;
@@ -51,7 +50,6 @@ namespace MOTH_2
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
             GeometryBase geometry = null;
             string address = "London, UK";
             bool fetch = false;
@@ -62,7 +60,6 @@ namespace MOTH_2
             Point3d center = Point3d.Origin;
             bool useAltitude = false;
 
-            // Get data
             if (!DA.GetData(0, ref geometry)) return;
             if (!DA.GetData(1, ref address)) return;
             if (!DA.GetData(2, ref fetch)) return;
@@ -73,7 +70,6 @@ namespace MOTH_2
             if (!DA.GetData(7, ref center)) return;
             if (!DA.GetData(8, ref useAltitude)) return;
 
-            // Validate date/time inputs
             if (month < 1 || month > 12)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Month must be between 1 and 12");
@@ -93,15 +89,12 @@ namespace MOTH_2
             double lat = _cachedLat;
             double lng = _cachedLng;
 
-            // Only geocode when Fetch is true
             if (fetch)
             {
-                // Only call API if address has changed
                 if (address != _cachedAddress)
                 {
                     try
                     {
-                        // First try parsing as raw coordinates e.g. "51.5074, -0.1278"
                         if (TryParseCoordinates(address, out lat, out lng))
                         {
                             _cachedAddress = address;
@@ -110,7 +103,6 @@ namespace MOTH_2
                         }
                         else
                         {
-                            // Use synchronous WebClient to avoid thread deadlock
                             GeocodeAddress(address, out lat, out lng);
                             _cachedAddress = address;
                             _cachedLat = lat;
@@ -125,32 +117,27 @@ namespace MOTH_2
                 }
                 else
                 {
-                    // Use cached values
                     lat = _cachedLat;
                     lng = _cachedLng;
                 }
             }
             else
             {
-                // Fetch is false
                 if (_cachedAddress == "")
                 {
                     DA.SetData(7, "Enter an address and set Fetch to True");
                     return;
                 }
-                // Use last cached coordinates
                 lat = _cachedLat;
                 lng = _cachedLng;
             }
 
             try
             {
-                // Convert decimal time to hours minutes seconds
                 int hour = (int)time;
                 int minute = (int)((time - hour) * 60);
                 int second = (int)((((time - hour) * 60) - minute) * 60);
 
-                // Create DateTime
                 DateTime dateTime = new DateTime(year, month, day, hour, minute, second);
 
                 // Calculate sun position using Rhino's built-in Sun
@@ -160,7 +147,6 @@ namespace MOTH_2
                 double azimuth = sun.Azimuth;
                 double altitude = sun.Altitude;
 
-                // Build sun direction vector
                 double azimuthRad = RhinoMath.ToRadians(azimuth);
                 double altitudeRad = RhinoMath.ToRadians(altitude);
 
@@ -170,7 +156,6 @@ namespace MOTH_2
                     Math.Sin(altitudeRad)
                 );
 
-                // Create rotation transform
                 Transform rotation;
 
                 if (useAltitude)
@@ -183,11 +168,9 @@ namespace MOTH_2
                     rotation = Transform.Rotation(azimuthRad, Vector3d.ZAxis, center);
                 }
 
-                // Apply transformation to geometry
                 GeometryBase rotatedGeometry = geometry.Duplicate();
                 rotatedGeometry.Transform(rotation);
 
-                // Outputs
                 DA.SetData(0, rotatedGeometry);
                 DA.SetData(1, rotation);
                 DA.SetData(2, azimuth);
@@ -216,7 +199,6 @@ namespace MOTH_2
             }
         }
 
-        // Synchronous geocoding using WebClient - avoids thread deadlock in Grasshopper
         private void GeocodeAddress(string address, out double lat, out double lng)
         {
             lat = lng = 0;
@@ -225,7 +207,6 @@ namespace MOTH_2
 
             using (WebClient client = new WebClient())
             {
-                // Nominatim requires a User-Agent header
                 client.Headers.Add("User-Agent", "MOTH_GrasshopperPlugin/1.0");
                 client.Headers.Add("Accept-Language", "en");
 
@@ -242,7 +223,6 @@ namespace MOTH_2
             }
         }
 
-        // Try to parse "lat, lng" string directly
         private bool TryParseCoordinates(string input, out double lat, out double lng)
         {
             lat = lng = 0;
@@ -261,4 +241,5 @@ namespace MOTH_2
 
         public override Guid ComponentGuid => new Guid("a1234567-89ab-cdef-0123-456789abcdef");
     }
+
 }
