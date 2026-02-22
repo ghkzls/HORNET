@@ -2,7 +2,7 @@
 
 Rotates building geometry based on real sun position.
 
-**Features:**
+## Features
 - Address-based geocoding (no manual coordinates)
 - Time-based sun angle calculation
 - Automatic facade orientation
