@@ -25,3 +25,6 @@ Rotates building geometry based on real sun position.
 - No API keys needed
 - No external services
 - Pure calculation-based
+
+## Author
+Joaquin Ebba
