@@ -1,2 +1,2 @@
 # HORNET
-Rotational transformation of an facade based on sun path at any given location.
+Rotation of a facade system to block incident light based on the sun path at any given location.
